@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Médico - V10 SUPREMO</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0F172A">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    <style>.font-logo{font-family:'Montserrat',sans-serif;}.font-texto{font-family:'Inter',sans-serif;} .pulso-microfono{animation:pulsoRojo 1.5s infinite;} @keyframes pulsoRojo{0%{box-shadow:0 0 0 0 rgba(239,68,68,0.7);}70%{box-shadow:0 0 15px 10px rgba(239,68,68,0);}100%{box-shadow:0 0 0 0 rgba(239,68,68,0);}}</style>
+</head>
+<body class="bg-slate-50 font-texto min-h-screen text-slate-800">
+    <div id="toastNotificacion" class="fixed bottom-10 right-10 bg-emerald-600 text-white px-6 py-4 rounded-2xl shadow-xl transform translate-y-32 opacity-0 transition-all z-[100] flex items-center gap-4">
+        <div class="text-3xl bg-emerald-500 rounded-full w-10 h-10 flex items-center justify-center">✓</div>
+        <div><p class="font-black text-sm uppercase">Operación Exitosa</p><p class="text-xs font-medium">Bóveda Criptográfica en línea. WhatsApp despachado.</p></div>
+    </div>
+
+    <nav class="bg-[#0F172A] p-4 flex items-center px-8 shadow-xl sticky top-0 z-50">
+        <div class="flex items-center gap-3 flex-1">
+            <div class="w-10 h-10 bg-gradient-to-tr from-amber-500 to-amber-300 rounded-xl flex items-center justify-center text-slate-950 font-black text-xl shadow-lg">👑</div>
+            <span class="text-white font-logo font-black text-xl uppercase">Med-Bolivia <span class="text-amber-400 text-xs font-bold lowercase">v10.0 Supremo Autómata</span></span>
+        </div>
+        <button onclick="instalarAplicacionMovil()" id="btnPWA" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black px-4 py-2 rounded-xl transition uppercase tracking-wider mr-4 shadow-md hidden">📱 Instalar App Móvil</button>
+    </nav>
+
+    <div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-6 p-6">
+        <aside class="col-span-12 lg:col-span-4 space-y-6">
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-100">
+                <input type="text" id="buscadorPaciente" oninput="buscarPacientesEnVivo()" placeholder="Buscar paciente por radar..." class="w-full bg-slate-50 border p-4 rounded-2xl outline-none text-sm font-semibold">
+                <div id="listaResultadosBusqueda" class="absolute bg-white border rounded-2xl shadow-2xl z-50 hidden mt-2 w-[22%]"></div>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-amber-500">
+                <label class="text-[9px] text-amber-600 font-black uppercase">Paciente Registrado</label>
+                <input id="nombrePaciente" type="text" placeholder="Nombre completo..." class="w-full text-2xl font-bold border-b border-transparent focus:border-amber-500 outline-none pb-1 mt-1">
+                <label class="text-[9px] text-slate-400 font-black uppercase block mt-4 mb-1">WhatsApp de Respaldo</label>
+                <input id="telefonoPaciente" type="text" placeholder="Ej. 59177585090" class="w-full text-sm font-mono font-bold bg-slate-50 border p-2 rounded-xl outline-none">
+            </div>
+            <div class="bg-gradient-to-br from-purple-900 to-indigo-900 p-6 rounded-3xl shadow-xl text-white border border-purple-500/30">
+                <h3 class="font-bold text-sm mb-4 flex items-center gap-2 text-purple-300">🔬 Módulo de Laboratorio e Imagenología</h3>
+                <div class="space-y-3 text-sm font-medium">
+                    <label class="flex items-center gap-3 bg-purple-950/50 p-3 rounded-xl border border-purple-800 cursor-pointer hover:bg-purple-800 transition"><input type="checkbox" value="Hemograma Completo" class="lab-check w-5 h-5 rounded text-purple-500"> Hemograma Completo</label>
+                    <label class="flex items-center gap-3 bg-purple-950/50 p-3 rounded-xl border border-purple-800 cursor-pointer hover:bg-purple-800 transition"><input type="checkbox" value="Rayos X - Tórax" class="lab-check w-5 h-5 rounded text-purple-500"> Rayos X - Tórax</label>
+                </div>
+            </div>
+        </aside>
+
+        <main class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+            <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 p-6 rounded-3xl shadow-2xl text-white border border-blue-500/20">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-black text-lg flex items-center gap-2">🧠 Gemini Neural Core Engine</h3>
+                    <button id="btnVoz" onclick="iniciarDictado()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white p-3 rounded-full transition flex items-center justify-center">🎙️ Enlazar Oído</button>
+                </div>
+                <textarea id="cuadroSintomas" placeholder="Haga clic en el micrófono y dicte los síntomas del paciente de forma natural..." class="w-full bg-slate-950/60 border border-blue-500/20 p-4 rounded-xl text-sm font-medium text-blue-100 placeholder-blue-300/30 outline-none h-20 resize-none mb-4 transition"></textarea>
+                <button onclick="procesarSintomasConIAVerdadera()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black py-3 rounded-xl shadow-lg text-sm uppercase tracking-wide">
+                    ✨ Ejecutar Extracción Neuronal con Google Gemini
+                </button>
+            </div>
+
+            <div id="cajaPrescripcion" class="bg-white p-8 rounded-3xl shadow-2xl border border-slate-100 flex-1 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-2xl font-logo font-black text-slate-900 uppercase italic mb-6 border-b pb-4">Plan Farmacéutico Digital</h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-12 gap-4 bg-slate-50 p-4 rounded-2xl border">
+                            <div class="col-span-6"><input id="medicamento1" type="text" placeholder="Fórmula Química" class="w-full bg-transparent font-bold text-sm uppercase outline-none text-slate-800"></div>
+                            <div class="col-span-2 border-l pl-2"><input id="cantidad1" type="number" value="1" class="w-full bg-transparent font-bold text-center text-sm outline-none"></div>
+                            <div class="col-span-4 border-l pl-2"><input id="indicacion1" type="text" placeholder="Posología indicada" class="w-full bg-transparent text-xs outline-none"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 pt-6 border-t border-slate-100">
+                    <button onclick="transmitirOrdenClinica()" id="btnEnviar" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-5 rounded-2xl shadow-xl transition transform active:scale-95 text-lg uppercase tracking-wider">
+                        🚀 Lanzar Misil de Emisión (Farmacia + Lab + WhatsApp + SIN)
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const btnVoz = document.getElementById('btnVoz'); const cuadroSintomas = document.getElementById('cuadroSintomas'); let reconocimiento;
+        if ('webkitSpeechRecognition' in window) {
+            reconocimiento = new webkitSpeechRecognition(); reconocimiento.continuous = false; reconocimiento.lang = 'es-BO';
+            reconocimiento.onstart = function() { btnVoz.className = "pulso-microfono bg-red-600 p-3 rounded-full text-white font-bold"; };
+            reconocimiento.onresult = function(e) { cuadroSintomas.value += e.results[0][0].transcript + "."; };
+            reconocimiento.onend = function() { btnVoz.className = "bg-slate-800 p-3 rounded-full text-white"; };
+        }
+        function iniciarDictado() { if(reconocimiento) reconocimiento.start(); }
+
+        async function procesarSintomasConIAVerdadera() {
+            if(!cuadroSintomas.value) return alert("Dicte síntomas clínico primero.");
+            try {
+                const res = await fetch('http://localhost:3000/api/ai/analizar-sintomas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sintomas: cuadroSintomas.value }) });
+                if(res.ok) {
+                    const datosAI = await res.json();
+                    document.getElementById('medicamento1').value = datosAI.medicamento;
+                    document.getElementById('cantidad1').value = datosAI.cantidad;
+                    document.getElementById('indicacion1').value = datosAI.indicacion;
+                }
+            } catch(e) { console.error("Error llamando neuronas", e); }
+        }
+
+        async function buscarPacientesEnVivo() {
+            const query = document.getElementById('buscadorPaciente').value; if (query.length < 2) return;
+            try {
+                const res = await fetch(`http://localhost:3000/api/pacientes/buscar?query=${encodeURIComponent(query)}`);
+                const pacientes = await res.json(); const lista = document.getElementById('listaResultadosBusqueda');
+                lista.innerHTML = pacientes.map(p => `<div onclick="document.getElementById('nombrePaciente').value='${p.paciente}'; document.getElementById('telefonoPaciente').value='${p.celular}'; document.getElementById('listaResultadosBusqueda').classList.add('hidden');" class="p-4 hover:bg-blue-50 border-b cursor-pointer"><p class="font-bold text-sm">${p.paciente}</p></div>`).join('');
+                lista.classList.remove('hidden');
+            } catch (error) { console.log(error); }
+        }
+
+        async function transmitirOrdenClinica() {
+            const labsSeleccionados = Array.from(document.querySelectorAll('.lab-check:checked')).map(cb => cb.value);
+            const datosReceta = {
+                pacienteNombre: document.getElementById('nombrePaciente').value,
+                pacienteTelefono: document.getElementById('telefonoPaciente').value,
+                receta: [{ med: document.getElementById('medicamento1').value, can: document.getElementById('cantidad1').value, ind: document.getElementById('indicacion1').value }],
+                laboratorios: labsSeleccionados
+            };
+            try {
+                const respuesta = await fetch('http://localhost:3000/api/enviar-receta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datosReceta) });
+                if (respuesta.ok) { 
+                    const toast = document.getElementById('toastNotificacion'); toast.classList.remove('translate-y-32', 'opacity-0');
+                    setTimeout(() => { toast.classList.add('translate-y-32', 'opacity-0'); location.reload(); }, 3000);
+                } 
+            } catch (error) { console.error(error); } 
+        }
+
+        let eventoPWA;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); eventoPWA = e; document.getElementById('btnPWA').classList.remove('hidden');
+        });
+        function instalarAplicacionMovil() {
+            if(eventoPWA) {
+                eventoPWA.prompt();
+                eventoPWA.userChoice.then((choiceResult) => { if (choiceResult.outcome === 'accepted') document.getElementById('btnPWA').classList.add('hidden'); });
+            }
+        }
+    </script>
+</body>
+</html>

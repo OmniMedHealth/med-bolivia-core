@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bóveda Imperial CEO - MED-BOLIVIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    <style>body{background-color:#05070F;}.font-logo{font-family:'Montserrat',sans-serif;}.font-texto{font-family:'Inter',sans-serif;}.cyber-card{background:rgba(13,18,35,0.7);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.04);}</style>
+</head>
+<body class="font-texto text-slate-100 min-h-screen p-6">
+    <header class="max-w-[1600px] mx-auto flex justify-between items-center mb-8 pb-6 border-b border-slate-800">
+        <div><h1 class="text-3xl font-logo font-black text-white uppercase">MED-BOLIVIA <span class="text-amber-400 text-xs">FINANCIAL CORE V9</span></h1></div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto space-y-6">
+        <!-- MATRIZ DE 5 VÍAS DE INGRESOS (INCLUYE LABORATORIO) -->
+        <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="cyber-card p-5 rounded-2xl"><p class="text-[9px] font-bold text-blue-400 uppercase">Peajes Farmacia</p><p class="text-2xl font-black mt-1" id="montoPeajes">Bs. 0.00</p></div>
+            <div class="cyber-card p-5 rounded-2xl bg-fuchsia-900/20 border border-fuchsia-500/30"><p class="text-[9px] font-bold text-fuchsia-400 uppercase animate-pulse">Peajes Laboratorios</p><p class="text-2xl font-black text-fuchsia-300 mt-1" id="montoLabs">Bs. 0.00</p></div>
+            <div class="cyber-card p-5 rounded-2xl"><p class="text-[9px] font-bold text-amber-400 uppercase">Pujas Pharma</p><p class="text-2xl font-black mt-1" id="montoPujas">Bs. 0.00</p></div>
+            <div class="cyber-card p-5 rounded-2xl"><p class="text-[9px] font-bold text-emerald-400 uppercase">SaaS Médicos</p><p class="text-2xl font-black mt-1" id="montoSaas">Bs. 0.00</p></div>
+            <div class="cyber-card p-5 rounded-2xl bg-gradient-to-tr from-slate-900 to-emerald-950 border-r-4 border-emerald-500"><p class="text-[9px] font-bold text-emerald-400 uppercase">Caja Fuerte Total</p><p class="text-3xl font-black text-emerald-400 mt-1" id="montoTotal">Bs. 0.00</p></div>
+        </section>
+    </main>
+    <script>
+        async function refrescarDashboardImperial() {
+            try {
+                const res = await fetch('http://localhost:3000/api/ceo/metricas-vivas');
+                if(!res.ok) return;
+                const data = await res.json();
+                document.getElementById('montoPeajes').innerText = "Bs. " + data.comisionesFarmacia.toLocaleString('es-BO');
+                document.getElementById('montoLabs').innerText = "Bs. " + data.comisionesLaboratorio.toLocaleString('es-BO');
+                document.getElementById('montoPujas').innerText = "Bs. " + data.pujasLaboratorios.toLocaleString('es-BO');
+                document.getElementById('montoSaas').innerText = "Bs. " + data.saasMedicos.toLocaleString('es-BO');
+                document.getElementById('montoTotal').innerText = "Bs. " + data.cajaTotal.toLocaleString('es-BO');
+            } catch (e) { console.error(e); }
+        }
+        setInterval(refrescarDashboardImperial, 3000);
+        refrescarDashboardImperial();
+    </script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub Logístico - Farmacias MED-BOLIVIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    <style>
+        .font-logo { font-family: 'Montserrat', sans-serif; }
+        .font-texto { font-family: 'Inter', sans-serif; }
+        body { background-color: #f8fafc; }
+        /* Efectos Kanban */
+        .columna-kanban { min-height: 500px; transition: background-color 0.3s; }
+        .columna-kanban.drag-over { background-color: #e2e8f0; border: 2px dashed #3b82f6; }
+        .tarjeta-orden { cursor: grab; transition: transform 0.2s, box-shadow 0.2s; }
+        .tarjeta-orden:active { cursor: grabbing; transform: scale(0.98); }
+        .pulso-alerta { animation: pulsoNaranja 2s infinite; }
+        @keyframes pulsoNaranja {
+            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+            70% { box-shadow: 0 0 15px 10px rgba(249, 115, 22, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+        }
+    </style>
+</head>
+<body class="font-texto text-slate-800">
+
+    <!-- Navbar de la Farmacia -->
+    <nav class="bg-white border-b border-slate-200 p-4 shadow-sm flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl">F</div>
+            <div>
+                <h1 class="font-logo font-black text-slate-900 tracking-tight uppercase text-lg leading-none">Farmacia Central</h1>
+                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Terminal Logística B2B</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right">
+                <p class="text-xs font-bold text-slate-500">Conexión con Bóveda Central</p>
+                <p class="text-[10px] text-emerald-500 font-bold flex items-center gap-1 justify-end"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span> En línea</p>
+            </div>
+        </div>
+    </nav>
+
+    <main class="p-6 max-w-[1600px] mx-auto">
+        <header class="mb-8 flex justify-between items-end">
+            <div>
+                <h2 class="text-2xl font-black font-logo uppercase tracking-tight">Centro de Despacho (Kanban)</h2>
+                <p class="text-sm text-slate-500 font-medium mt-1">Arrastra las recetas para actualizar el estado del paciente en tiempo real.</p>
+            </div>
+            <button onclick="cargarOrdenes()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2 px-4 rounded-lg text-xs transition border border-slate-300">
+                🔄 Refrescar Radar
+            </button>
+        </header>
+
+        <!-- TABLERO KANBAN -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Columna 1: Nuevas -->
+            <div class="bg-slate-100 rounded-2xl p-4 border border-slate-200 flex flex-col">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-200 pb-2">
+                    <h3 class="font-black text-slate-700 uppercase tracking-wider text-sm flex items-center gap-2">📥 Bandeja de Entrada</h3>
+                    <span class="bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full" id="contadorNuevas">0</span>
+                </div>
+                <div id="col-nuevas" class="columna-kanban flex-1 space-y-3" ondrop="soltar(event, 'Enviada a Farmacia')" ondragover="permitirSoltar(event)">
+                    <!-- Tarjetas inyectadas por JS -->
+                </div>
+            </div>
+
+            <!-- Columna 2: Preparando / Delivery -->
+            <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 flex flex-col">
+                <div class="flex justify-between items-center mb-4 border-b border-blue-200 pb-2">
+                    <h3 class="font-black text-blue-700 uppercase tracking-wider text-sm flex items-center gap-2">🛵 En Camino (Delivery)</h3>
+                </div>
+                <div id="col-delivery" class="columna-kanban flex-1 space-y-3" ondrop="soltar(event, 'En Camino (Moto)')" ondragover="permitirSoltar(event)">
+                    <!-- Tarjetas inyectadas por JS -->
+                </div>
+            </div>
+
+            <!-- Columna 3: Entregado -->
+            <div class="bg-emerald-50/50 rounded-2xl p-4 border border-emerald-100 flex flex-col">
+                <div class="flex justify-between items-center mb-4 border-b border-emerald-200 pb-2">
+                    <h3 class="font-black text-emerald-700 uppercase tracking-wider text-sm flex items-center gap-2">✅ Entregado / Finalizado</h3>
+                </div>
+                <div id="col-entregado" class="columna-kanban flex-1 space-y-3" ondrop="soltar(event, 'Entregado')" ondragover="permitirSoltar(event)">
+                    <div class="border-2 border-dashed border-emerald-200 rounded-xl p-8 text-center text-emerald-600 text-xs font-bold opacity-50">
+                        Arrastra aquí para liquidar la orden.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- MOTOR KANBAN DE ARRASTRE Y SOLTAR ---
+        function permitirSoltar(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+
+        function arrastrar(ev) {
+            ev.dataTransfer.setData("id_receta", ev.target.id);
+        }
+
+        async function soltar(ev, nuevoEstado) {
+            ev.preventDefault();
+            document.querySelectorAll('.columna-kanban').forEach(c => c.classList.remove('drag-over'));
+            
+            const idReceta = ev.dataTransfer.getData("id_receta");
+            const tarjeta = document.getElementById(idReceta);
+            
+            // Encontrar la columna correcta (ev.target podría ser un hijo, buscamos el contenedor)
+            let contenedor = ev.target;
+            while (!contenedor.classList.contains('columna-kanban')) { contenedor = contenedor.parentNode; }
+            contenedor.appendChild(tarjeta);
+
+            // Cambiar estilos de la tarjeta según su estado
+            if(nuevoEstado === 'En Camino (Moto)') tarjeta.className = "tarjeta-orden bg-white border-l-4 border-blue-500 p-4 rounded-xl shadow-sm";
+            if(nuevoEstado === 'Entregado') tarjeta.className = "tarjeta-orden bg-white border-l-4 border-emerald-500 p-4 rounded-xl shadow-sm opacity-60";
+
+            // Enviar la actualización a MongoDB
+            try {
+                await fetch('http://localhost:3000/api/farmacia/actualizar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: idReceta.replace('orden-',''), nuevoEstado: nuevoEstado })
+                });
+            } catch(e) { console.error("Error al actualizar Bóveda", e); }
+        }
+
+        // --- EXTRACCIÓN DE DATOS DE LA BÓVEDA ---
+        async function cargarOrdenes() {
+            try {
+                const res = await fetch('http://localhost:3000/api/farmacia/ordenes');
+                const ordenes = await res.json();
+                
+                const colNuevas = document.getElementById('col-nuevas');
+                const colDelivery = document.getElementById('col-delivery');
+                let contador = 0;
+
+                colNuevas.innerHTML = ''; colDelivery.innerHTML = '';
+
+                ordenes.forEach(o => {
+                    // Extraer los medicamentos en formato texto
+                    const medsHTML = o.medicamentos.map(m => `<p class="font-bold text-slate-800">💊 ${m.med} <span class="text-xs text-slate-500 font-normal">(x${m.can})</span></p>`).join('');
+                    
+                    // Si es un Refill Express, la tarjeta parpadea
+                    let efectoEspecial = o.estado.includes("Refill") ? "pulso-alerta border-l-4 border-orange-500" : "border-l-4 border-slate-400";
+                    let tagVIP = o.estado.includes("Refill") ? `<span class="bg-orange-100 text-orange-600 text-[9px] font-black px-2 py-0.5 rounded-full uppercase ml-2">⚠️ Refill Express</span>` : '';
+
+                    const tarjeta = `
+                    <div id="orden-${o._id}" class="tarjeta-orden bg-white p-4 rounded-xl shadow-sm border border-slate-200 ${efectoEspecial}" draggable="true" ondragstart="arrastrar(event)">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase">Paciente</p>
+                                <p class="text-sm font-black text-slate-900">${o.paciente} ${tagVIP}</p>
+                            </div>
+                            <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded font-mono">${o.tokenQR || 'S/T'}</span>
+                        </div>
+                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 mb-2 text-xs">
+                            ${medsHTML}
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                            <span>📱 +591 ${o.celular.substring(3)}</span>
+                            <span>📍 ${o.zona || 'Centro'}</span>
+                        </div>
+                    </div>`;
+
+                    if (o.estado.includes("En Camino")) {
+                        colDelivery.innerHTML += tarjeta;
+                    } else {
+                        colNuevas.innerHTML += tarjeta;
+                        contador++;
+                    }
+                });
+                
+                document.getElementById('contadorNuevas').innerText = contador;
+            } catch (e) { console.error("Error cargando el radar logístico", e); }
+        }
+
+        // Auto-refresh cada 5 segundos para que la farmacia vea llegar pedidos nuevos
+        setInterval(cargarOrdenes, 5000);
+        cargarOrdenes();
+    </script>
+</body>
+</html>

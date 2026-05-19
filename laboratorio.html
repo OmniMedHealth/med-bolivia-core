@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub de Laboratorios - MED-BOLIVIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    <style>.font-logo{font-family:'Montserrat',sans-serif;}.font-texto{font-family:'Inter',sans-serif;} body{background-color:#1e1b4b;} .col-kanban{min-height:500px;} .tarjeta{cursor:grab;} .tarjeta:active{cursor:grabbing;}</style>
+</head>
+<body class="font-texto text-slate-100">
+    <nav class="bg-[#0f0a29] border-b border-fuchsia-900/50 p-4 shadow-xl flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-fuchsia-600 rounded-xl flex items-center justify-center text-white font-black text-xl">L</div>
+            <div><h1 class="font-logo font-black text-fuchsia-100 uppercase text-lg leading-none">Laboratorio Central</h1><p class="text-[10px] font-bold text-fuchsia-400 uppercase">Terminal de Imagenología y Sangre</p></div>
+        </div>
+    </nav>
+
+    <main class="p-6 max-w-[1600px] mx-auto">
+        <header class="mb-8"><h2 class="text-2xl font-black font-logo uppercase text-white">Órdenes Clínicas (Kanban)</h2><p class="text-sm text-fuchsia-300/60 mt-1">Arrastra las tarjetas para notificar al paciente que sus resultados están listos.</p></header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-indigo-950/40 rounded-2xl p-4 border border-indigo-900 flex flex-col">
+                <h3 class="font-black text-indigo-300 uppercase text-sm mb-4 border-b border-indigo-800 pb-2">🩸 Nuevas Muestras (Pacientes en camino)</h3>
+                <div id="col-nuevas" class="col-kanban space-y-3" ondrop="soltar(event, 'Muestra Pendiente')" ondragover="event.preventDefault()"></div>
+            </div>
+            <div class="bg-fuchsia-950/40 rounded-2xl p-4 border border-fuchsia-900 flex flex-col">
+                <h3 class="font-black text-fuchsia-300 uppercase text-sm mb-4 border-b border-fuchsia-800 pb-2">🔬 Analizando / Cultivo</h3>
+                <div id="col-analizando" class="col-kanban space-y-3" ondrop="soltar(event, 'Analizando Resultados')" ondragover="event.preventDefault()"></div>
+            </div>
+            <div class="bg-emerald-950/40 rounded-2xl p-4 border border-emerald-900 flex flex-col">
+                <h3 class="font-black text-emerald-300 uppercase text-sm mb-4 border-b border-emerald-800 pb-2">✅ Resultados Entregados</h3>
+                <div id="col-listos" class="col-kanban space-y-3" ondrop="soltar(event, 'Resultados Entregados')" ondragover="event.preventDefault()"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function arrastrar(ev) { ev.dataTransfer.setData("id_orden", ev.target.id); }
+        async function soltar(ev, nuevoEstado) {
+            ev.preventDefault();
+            const idOrden = ev.dataTransfer.getData("id_orden");
+            let contenedor = ev.target;
+            while (!contenedor.classList.contains('col-kanban')) { contenedor = contenedor.parentNode; }
+            contenedor.appendChild(document.getElementById(idOrden));
+
+            try {
+                await fetch('http://localhost:3000/api/laboratorio/actualizar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: idOrden.replace('orden-',''), nuevoEstado: nuevoEstado }) });
+            } catch(e) { console.log(e); }
+        }
+
+        async function cargarOrdenesLab() {
+            try {
+                const res = await fetch('http://localhost:3000/api/laboratorio/ordenes');
+                const ordenes = await res.json();
+                document.getElementById('col-nuevas').innerHTML = ''; document.getElementById('col-analizando').innerHTML = '';
+                
+                ordenes.forEach(o => {
+                    const exHTML = o.examenes.map(e => `<span class="bg-fuchsia-900 text-fuchsia-100 px-2 py-1 rounded text-[10px] font-bold m-1 inline-block">${e}</span>`).join('');
+                    const tarjeta = `<div id="orden-${o._id}" class="tarjeta bg-slate-900 p-4 rounded-xl shadow-lg border border-slate-700" draggable="true" ondragstart="arrastrar(event)">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Paciente</p><p class="text-sm font-black text-white mb-2">${o.paciente}</p>
+                        <div class="mb-2">${exHTML}</div>
+                        <p class="text-[10px] text-fuchsia-400 font-mono">TOKEN: ${o.tokenQR_Lab}</p>
+                    </div>`;
+                    if (o.estado === 'Analizando Resultados') document.getElementById('col-analizando').innerHTML += tarjeta;
+                    else document.getElementById('col-nuevas').innerHTML += tarjeta;
+                });
+            } catch (e) { console.log(e); }
+        }
+        setInterval(cargarOrdenesLab, 5000); cargarOrdenesLab();
+    </script>
+</body>
+</html>
