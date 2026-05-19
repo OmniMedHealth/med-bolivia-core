@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Acceso - MED-BOLIVIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    <style>
+        .font-logo { font-family: 'Montserrat', sans-serif; }
+        .font-texto { font-family: 'Inter', sans-serif; }
+        
+        /* Fondo con animación de red neuronal médica */
+        body {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.1) 0, transparent 50%);
+            overflow: hidden;
+        }
+        
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-cyber {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .input-cyber:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+            outline: none;
+        }
+
+        /* Animación de escaneo láser */
+        .laser-scanner {
+            width: 100%;
+            height: 2px;
+            background: #38bdf8;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow: 0 0 10px #38bdf8, 0 0 20px #38bdf8;
+            animation: scan 2s infinite linear;
+            display: none;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body class="font-texto h-screen flex items-center justify-center text-slate-200">
+
+    <!-- Círculos decorativos de fondo -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-pulse"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-pulse" style="animation-delay: 2s;"></div>
+
+    <div class="w-full max-w-md p-8 relative z-10">
+        
+        <!-- Tarjeta de Login -->
+        <div class="glass-panel rounded-3xl p-10 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden transform transition hover:scale-[1.01] duration-500">
+            <div id="scanner" class="laser-scanner"></div>
+
+            <!-- Logo -->
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-blue-500/30 mb-4 transform rotate-3">
+                    <span class="text-4xl">🧬</span>
+                </div>
+                <h1 class="text-3xl font-logo font-black tracking-tighter text-white uppercase">Med-Bolivia</h1>
+                <p class="text-xs font-bold text-blue-400 tracking-widest mt-1">SaaS Access Terminal</p>
+            </div>
+
+            <!-- Formulario -->
+            <form id="loginForm" onsubmit="iniciarSesion(event)" class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-wider">Credencial de Red (Correo)</label>
+                    <input type="email" id="email" required placeholder="usuario@clinica.com" class="w-full input-cyber p-4 rounded-xl text-sm font-medium">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-wider">Clave de Encriptación</label>
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full input-cyber p-4 rounded-xl text-sm font-medium font-mono">
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" id="btnSubmit" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-black py-4 rounded-xl shadow-lg shadow-blue-500/30 transition transform active:scale-95 flex justify-center items-center gap-2 uppercase tracking-wide text-sm">
+                        <span>🔓 Desbloquear Terminal</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Alertas UI -->
+            <div id="alertaCaja" class="mt-6 hidden rounded-xl p-4 border text-xs font-bold text-center transition-all">
+                <span id="alertaTexto">Mensaje</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-[10px] text-slate-500 font-bold tracking-widest uppercase">
+            <p>Infraestructura B2B - Licencia Privada</p>
+            <p class="mt-1">La Paz, Bolivia © 2026</p>
+        </div>
+    </div>
+
+    <script>
+        async function iniciarSesion(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btnSubmit');
+            const scanner = document.getElementById('scanner');
+            const alertaCaja = document.getElementById('alertaCaja');
+            const alertaTexto = document.getElementById('alertaTexto');
+
+            // UI Feedback: Escaneando
+            btn.innerHTML = "⏳ Verificando Bóveda...";
+            btn.disabled = true;
+            scanner.style.display = "block";
+            alertaCaja.classList.add('hidden');
+
+            try {
+                const respuesta = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const datos = await respuesta.json();
+
+                if (respuesta.ok) {
+                    // ÉXITO: Ruteo Inteligente
+                    alertaCaja.className = "mt-6 rounded-xl p-4 border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold text-center animate-pulse";
+                    alertaTexto.innerText = `✅ Acceso Autorizado. Redirigiendo a ${datos.rol.toUpperCase()}...`;
+                    
+                    // Guardar credencial en la memoria del navegador
+                    localStorage.setItem('med_usuario', datos.nombre);
+                    localStorage.setItem('med_rol', datos.rol);
+
+                    // TELETRANSPORTACIÓN AL PLANETA CORRECTO
+                    setTimeout(() => {
+                        if (datos.rol === 'medico') window.location.href = 'medico.html';
+                        else if (datos.rol === 'farmacia') window.location.href = 'farmacia.html';
+                    }, 1500);
+
+                } else {
+                    // ERROR: Fallo de credenciales o licencia expirada
+                    scanner.style.display = "none";
+                    btn.innerHTML = "🔓 Desbloquear Terminal";
+                    btn.disabled = false;
+                    
+                    alertaCaja.className = "mt-6 rounded-xl p-4 border border-red-500/30 bg-red-500/10 text-red-400 text-xs font-bold text-center";
+                    alertaTexto.innerText = "❌ " + datos.message;
+                    
+                    // Efecto de sacudida (Shake) si no ha pagado
+                    if (datos.codigo === 'LICENCIA_EXPIRADA') {
+                        document.querySelector('.glass-panel').classList.add('animate-[shake_0.5s_ease-in-out]');
+                        setTimeout(() => document.querySelector('.glass-panel').classList.remove('animate-[shake_0.5s_ease-in-out]'), 500);
+                    }
+                }
+
+            } catch (error) {
+                scanner.style.display = "none";
+                btn.innerHTML = "🔓 Desbloquear Terminal";
+                btn.disabled = false;
+                alertaCaja.className = "mt-6 rounded-xl p-4 border border-red-500/30 bg-red-500/10 text-red-400 text-xs font-bold text-center";
+                alertaTexto.innerText = "❌ Error de conexión. ¿Está el Sol (Servidor) encendido?";
+            }
+        }
+    </script>
+</body>
+</html>
