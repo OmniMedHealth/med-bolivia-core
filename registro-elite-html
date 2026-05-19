@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MED-LATAM | Registro Global Elite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        .font-logo { font-family: 'Montserrat', sans-serif; }
+        .font-texto { font-family: 'Inter', sans-serif; }
+        body { 
+            background-color: #020617; 
+            background-image: radial-gradient(circle at 100% 0%, #1e3a8a 0%, #020617 50%), radial-gradient(circle at 0% 100%, #064e3b 0%, #020617 50%);
+            color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .input-dark {
+            background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); color: white;
+            transition: all 0.3s ease;
+        }
+        .input-dark:focus { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); outline: none; }
+        .btn-gold {
+            background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+            color: #020617; transition: transform 0.2s; font-weight: 900;
+        }
+        .btn-gold:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+    </style>
+</head>
+<body class="font-texto min-h-screen flex items-center justify-center p-4 sm:p-8">
+
+    <div class="glass-panel w-full max-w-5xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
+        
+        <div class="md:w-5/12 bg-gradient-to-br from-blue-900/50 to-slate-900/80 p-10 border-r border-white/5 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-12 h-12 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.4)]">
+                        <span class="text-slate-900 font-black text-2xl">M</span>
+                    </div>
+                    <h1 class="font-logo font-black text-2xl uppercase tracking-wider">MED-LATAM</h1>
+                </div>
+                <h2 class="text-3xl font-black mb-4 leading-tight">Únete al Monopolio de la Salud.</h2>
+                <p class="text-slate-400 text-sm mb-6 leading-relaxed">Configura tu perfil profesional en minutos. Gestiona consultorios múltiples, horarios dinámicos y conecta con miles de pacientes a través de nuestra red impulsada por Inteligencia Artificial.</p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="text-emerald-400 mt-1">✓</div>
+                        <p class="text-xs text-slate-300"><strong>Agenda Omnipresente:</strong> Define horarios distintos para clínicas o emergencias 24/7.</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="text-blue-400 mt-1">✓</div>
+                        <p class="text-xs text-slate-300"><strong>Logística Automatizada:</strong> Integración nativa con flotas motorizadas para envíos de recetas.</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="text-amber-400 mt-1">✓</div>
+                        <p class="text-xs text-slate-300"><strong>Auto-Marketing QR:</strong> Tu perfil se promociona solo con cada receta emitida.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-[10px] text-slate-500 font-mono tracking-widest uppercase">
+                Red Global • Cifrado Militar • AI Core V11
+            </div>
+        </div>
+
+        <div class="md:w-7/12 p-10 flex flex-col justify-center">
+            <h3 class="text-xl font-bold mb-6 text-white flex justify-between items-center">
+                <span>Creación de Perfil Élite</span>
+                <span class="text-xs font-normal text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Paso 1 de 3</span>
+            </h3>
+
+            <form class="space-y-6">
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="tipo" class="peer sr-only" checked>
+                        <div class="p-3 text-center rounded-xl border border-white/10 bg-slate-800/50 peer-checked:border-amber-500 peer-checked:bg-amber-500/10 transition text-sm font-bold text-slate-300 peer-checked:text-amber-400">🩺 Médico</div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="tipo" class="peer sr-only">
+                        <div class="p-3 text-center rounded-xl border border-white/10 bg-slate-800/50 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition text-sm font-bold text-slate-300 peer-checked:text-emerald-400">🛵 Farmacia</div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="tipo" class="peer sr-only">
+                        <div class="p-3 text-center rounded-xl border border-white/10 bg-slate-800/50 peer-checked:border-fuchsia-500 peer-checked:bg-fuchsia-500/10 transition text-sm font-bold text-slate-300 peer-checked:text-fuchsia-400">🔬 Laboratorio</div>
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nombre Completo</label>
+                        <input type="text" placeholder="Ej. Dr. René Favaloro" class="w-full input-dark p-3 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Especialidad Principal</label>
+                        <input type="text" placeholder="Ej. Cardiología" class="w-full input-dark p-3 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Matrícula / Registro</label>
+                        <input type="text" placeholder="Nro. de Registro Médico" class="w-full input-dark p-3 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Universidad de Egreso</label>
+                        <input type="text" placeholder="Institución Educativa" class="w-full input-dark p-3 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Ubicaciones Múltiples (Resumen)</label>
+                    <textarea placeholder="Ej. Mañanas en Clínicas del Sur (8:00 - 12:00) / Tardes en Consultorio Miraflores (14:00 - 19:00)." class="w-full input-dark p-3 rounded-xl text-sm h-20 resize-none"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-white/10 flex items-center justify-between">
+                    <p class="text-xs text-slate-500">Al continuar, aceptas el contrato de red Multi-Tenant.</p>
+                    <a href="/suscripcion-medica.html" class="btn-gold px-8 py-3 rounded-xl uppercase tracking-widest text-sm text-center">
+                        Siguiente Fase ➔
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</body>
+</html>
