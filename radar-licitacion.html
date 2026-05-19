@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MED-LATAM | Radar de Licitación Farmacéutica B2B</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+    <style>
+        .font-logo { font-family: 'Montserrat', sans-serif; }
+        .font-texto { font-family: 'Inter', sans-serif; }
+        body { 
+            background-color: #030712; 
+            background-image: radial-gradient(circle at 50% 0%, #0f172a 0%, #030712 70%);
+            color: #f3f4f6;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .radar-pulse {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body class="font-texto min-h-screen flex flex-col antialiased">
+
+    <nav class="w-full border-b border-white/5 bg-slate-950/60 backdrop-blur-md p-4 lg:px-12 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                <span class="text-slate-950 font-black text-lg">🛰️</span>
+            </div>
+            <div>
+                <h1 class="font-logo font-black text-md tracking-wider uppercase text-white">MED-LATAM <span class="text-emerald-400 text-[10px] font-bold tracking-normal lowercase">radar engine</span></h1>
+                <p class="text-[9px] text-slate-400 font-mono tracking-widest uppercase">Subasta Silenciosa de Medicamentos</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="flex items-center gap-2 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full font-bold">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> RADAR ACTIVO
+            </span>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-[1600px] w-full mx-auto grid grid-cols-12 gap-6 p-6">
+        
+        <section class="col-span-12 lg:col-span-8 space-y-6">
+            <div class="glass-card p-6 rounded-2xl border border-white/5">
+                <h3 class="text-lg font-bold text-white uppercase tracking-wide mb-4 flex justify-between items-center">
+                    <span>Transacciones en Licitación de 3 Segundos</span>
+                    <span class="text-xs font-mono text-slate-500 font-normal">Frecuencia: Ultra-Alta velocidad</span>
+                </h3>
+                
+                <div class="space-y-4">
+                    <div class="bg-slate-900/60 border border-white/5 p-4 rounded-xl flex items-center justify-between hover:border-emerald-500/30 transition">
+                        <div class="flex items-center gap-4">
+                            <div class="w-3 h-3 rounded-full bg-emerald-500 radar-pulse"></div>
+                            <div>
+                                <p class="text-xs font-mono text-slate-500 uppercase">Orden ID: #ML-8941A (Sopocachi, LP)</p>
+                                <p class="text-sm font-bold text-white uppercase mt-0.5">Losartán 50mg x 30 Tabs + Amoxicilina 1g</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-8 text-right">
+                            <div>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">Puja Ganadora Actual</p>
+                                <p class="text-sm font-black text-emerald-400 font-logo">Farmacorp <span class="text-xs font-normal text-slate-400">(22% Comisión)</span></p>
+                            </div>
+                            <div class="w-20 bg-slate-950 p-2 rounded-lg text-center border border-white/5">
+                                <span class="text-xs font-mono text-emerald-400 font-bold" id="timer-1">0.8s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/60 border border-white/5 p-4 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                            <div>
+                                <p class="text-xs font-mono text-slate-500 uppercase">Orden ID: #ML-8940B (Zona Sur, LP)</p>
+                                <p class="text-sm font-bold text-slate-300 uppercase mt-0.5">Metformina 850mg x 60 Tabs (Refill Express)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-8 text-right">
+                            <div>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">Puja Ganadora Actual</p>
+                                <p class="text-sm font-black text-amber-400 font-logo">Farmacias Chávez <span class="text-xs font-normal text-slate-400">(19% Comisión)</span></p>
+                            </div>
+                            <div class="w-20 bg-slate-950 p-2 rounded-lg text-center border border-white/5">
+                                <span class="text-xs font-mono text-amber-400 font-bold" id="timer-2">2.1s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/60 border border-white/5 p-4 rounded-xl flex items-center justify-between opacity-70">
+                        <div class="flex items-center gap-4">
+                            <div class="w-3 h-3 rounded-full bg-slate-600"></div>
+                            <div>
+                                <p class="text-xs font-mono text-slate-500 uppercase">Orden ID: #ML-8939C (Equipetrol, SC)</p>
+                                <p class="text-sm font-bold text-slate-400 uppercase mt-0.5">Insulina Glargina Inyectable (Cadena de Frío)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-8 text-right">
+                            <div>
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">Licitación Concluida</p>
+                                <p class="text-sm font-bold text-slate-400 font-logo">Farmacia Hipermaxi <span class="text-xs font-normal text-slate-500">(25% Comisión)</span></p>
+                            </div>
+                            <div class="w-20 bg-emerald-500/10 p-2 rounded-lg text-center border border-emerald-500/20">
+                                <span class="text-xs font-mono text-emerald-400 font-bold">Asignada</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-6 rounded-2xl border border-white/5">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">⚙️ Reglas de Ajuste Algorítmico</h4>
+                    <div class="space-y-4 text-xs font-medium">
+                        <div class="block">
+                            <span class="text-slate-400 block mb-2 uppercase text-[10px]">Comisión Mínima de Entrada (Peaje B2B)</span>
+                            <div class="w-full bg-slate-950 border border-white/10 p-3 rounded-xl text-white font-bold">15% por Transacción</div>
+                        </div>
+                        <div class="block">
+                            <span class="text-slate-400 block mb-2 uppercase text-[10px]">Prioridad por Cercanía Geográfica</span>
+                            <div class="w-full bg-slate-950 border border-white/10 p-3 rounded-xl text-emerald-400 font-bold">Radio Máximo de 3 Kilómetros</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-card p-6 rounded-2xl bg-gradient-to-br from-emerald-950/20 to-slate-950/80 border border-emerald-500/10 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2">💰 Rendimiento del Peaje Automatizado</h4>
+                        <p class="text-sm text-slate-400 font-light">Tus algoritmos están forzando a las grandes corporaciones de farmacias a competir entre ellas en silencio absoluto mientras duermes.</p>
+                    </div>
+                    <div class="pt-4 border-t border-white/5">
+                        <span class="text-[10px] text-slate-500 uppercase font-mono block">Margen Neto Acumulado Hoy</span>
+                        <span class="text-3xl font-black text-white font-logo tracking-tight">4,850.00 <span class="text-xs text-emerald-400 font-normal">Bs Liquidados</span></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="col-span-12 lg:col-span-4 space-y-6">
+            <div class="glass-card p-6 rounded-2xl border border-white/5">
+                <h4 class="text-xs font-bold text-white uppercase tracking-widest mb-6">🏢 Cadenas Conectadas a tu API</h4>
+                
+                <div class="space-y-4">
+                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+                        <div>
+                            <h5 class="text-sm font-bold text-white uppercase">FARMACORP S.A.</h5>
+                            <p class="text-[10px] text-slate-500 font-mono">Nro. Sucursales en Red: 84</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded font-mono font-bold">22.5% Máx</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+                        <div>
+                            <h5 class="text-sm font-bold text-white uppercase">FARMACIAS CHÁVEZ</h5>
+                            <p class="text-[10px] text-slate-500 font-mono">Nro. Sucursales en Red: 42</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-amber-400 bg-amber-500/10 border border-emerald-500/20 px-2 py-0.5 rounded font-mono font-bold">20.0% Máx</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+                        <div>
+                            <h5 class="text-sm font-bold text-white uppercase">FARMACIAS HIPERMAXI</h5>
+                            <p class="text-[10px] text-slate-500 font-mono">Nro. Sucursales en Red: 18</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded font-mono font-bold">25.0% Máx</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl border border-red-500/10 bg-red-950/5 text-xs text-slate-400 leading-relaxed font-light">
+                <span class="text-[10px] bg-red-500/10 text-red-400 font-bold uppercase px-2 py-0.5 rounded border border-red-500/20 block w-fit mb-2">Protocolo Antifraude</span>
+                Cada puja aceptada por el Radar de Licitación genera instantáneamente un hash criptográfico inmutable vinculado a la receta digital de MED-LATAM.
+            </div>
+        </aside>
+
+    </main>
+
+    <footer class="w-full py-4 text-center text-[9px] text-slate-600 font-mono border-t border-white/5 bg-slate-950/40 mt-auto">
+        MED-LATAM AUTO-BIDDING SYSTEM • ARQUITECTURA FINANCIERA SEGURA DE ESPECTRO COMPLETO
+    </footer>
+
+    <script>
+        // Animación de simulación de cuenta regresiva de subastas rápidas
+        setInterval(() => {
+            let t1 = parseFloat(document.getElementById('timer-1').textContent);
+            let t2 = parseFloat(document.getElementById('timer-2').textContent);
+            
+            t1 = t1 <= 0.1 ? 3.0 : (t1 - 0.1).toFixed(1);
+            t2 = t2 <= 0.1 ? 3.0 : (t2 - 0.1).toFixed(1);
+            
+            document.getElementById('timer-1').textContent = t1 + 's';
+            document.getElementById('timer-2').textContent = t2 + 's';
+        }, 100);
+    </script>
+</body>
+</html>
