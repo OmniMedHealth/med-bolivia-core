@@ -1,9 +1,12 @@
 {
+  "name": "med-bolivia-core",
+  "version": "1.0.0",
+  "main": "server.js",
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "mongodb": "^7.2.0",
-    "pdfkit": "^0.18.0"
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "@google/genai": "^0.1.1",
+    "mongodb": "^6.3.0",
+    "axios": "^1.6.2"
   }
 }
