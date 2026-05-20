@@ -1,175 +1,89 @@
-// ==========================================================================
-// MED-BOLIVIA CORE // PASO 7: INTELIGENCIA DE ENJAMBRE Y CONTABILIDAD DE TASAS
-// ==========================================================================
-
+require('dotenv').config();
 const express = require('express');
-const bodyParser = require('body-parser');
-const { GoogleGenAI } = require('@google/genai');
-const { MongoClient } = require('mongodb');
 const axios = require('axios');
-const crypto = require('crypto');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Variables de entorno inyectadas en la nube de Vercel
+// Extracción de Energía Cuántica (Variables de Entorno)
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN || 'MED_BOLIVIA_TOKEN';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const MONGODB_URI = process.env.MONGODB_URI;
-const VERIFY_TOKEN = 'MED_BOLIVIA_TOKEN'; 
 
-// Inicialización del cerebro de IA
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-// Conexión electrónica a la base de datos (MongoDB Atlas)
-let db;
-MongoClient.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(client => {
-        db = client.db('med_bolivia_core');
-        console.log("=== NÚCLEO DE MEMORIA ATLAS: ONLINE ===");
-    })
-    .catch(error => console.error("FALLO CRÍTICO EN ENLACE DE BASE DE DATOS:", error));
-
-// El puente de validación inicial con Meta
+// 🛡️ EL ESCUDO DE VERIFICACIÓN (Para que Meta confíe en nosotros)
 app.get('/webhook', (req, res) => {
-    const mode = req.query['hub.mode'];
-    const token = req.query['hub.verify_token'];
-    const challenge = req.query['hub.challenge'];
-
-    if (mode && token && mode === 'subscribe' && token === VERIFY_TOKEN) {
-        res.status(200).send(challenge);
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+  if (mode && token) {
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+      console.log('✅ CONEXIÓN METAVERSO ESTABLECIDA');
+      res.status(200).send(challenge);
     } else {
-        res.sendStatus(403);
+      res.sendStatus(403);
     }
+  }
 });
 
-// MOTOR DE INTELIGENCIA DE ENJAMBRE Y CONTABILIDAD OMNIPRESENTE
-async function ejecutarMatrizSupremaEnjambre(pacienteId, zonaGeografica, sintomasDetectados, costoReceta) {
-    const tiempoLimite = new Date(Date.now() - 24 * 60 * 60 * 1000); // Ventana de 24 horas
-
-    try {
-        // A. Contar cuántos casos similares hay en la misma zona en las últimas 24 horas
-        const volumenBrote = await db.collection('historiales_clinicos').countDocuments({
-            "logs.fecha": { $gte: tiempoLimite },
-            "logs.input": { $regex: sintomasDetectados, $options: 'i' },
-            zona: zonaGeografica
-        });
-
-        // Si hay más de 100 casos, se dispara una alerta de brote biológico
-        if (volumenBrote >= 100) {
-            await db.collection('alertas_gubernamentales').insertOne({
-                broteId: "BROTE-" + crypto.randomBytes(3).toString('hex').toUpperCase(),
-                patogenoEstimado: sintomasDetectados,
-                zonaAfectada: zonaGeografica,
-                casosActivos: volumenBrote,
-                fechaAlerta: new Date()
-            });
-            console.log(`⚠️ BROTE DETECTADO EN ${zonaGeografica}: ${volumenBrote} CASOS.`);
-        }
-
-        // B. REGISTRO CONTABLE AUTOMÁTICO (Tu billetera digital)
-        const transaccionId = "TXN-" + Math.floor(10000000 + Math.random() * 90000000);
-        await db.collection('banco_central_med_latam').insertOne({
-            transaccionId,
-            pacienteId,
-            fecha: new Date(),
-            gananciasBOB: {
-                comisionFarmacia: costoReceta * 0.12, // Tu 12% por la venta del remedio
-                canonLaboratorio: 3.50,               // Cobro al laboratorio por recomendar su marca
-                margenDelivery: 2.00                  // Tu ganancia limpia por el viaje de la moto
-            }
-        });
-        console.log(`[BUNKER FINANCIERO]: Transacción ${transaccionId} guardada con éxito.`);
-
-    } catch (error) {
-        console.error("ERROR EN EL ENJAMBRE CONTABLE:", error);
-    }
-}
-
-// MOTOR LOGÍSTICO (Cercanía de farmacias y rutas)
-async function procesarLogisticaDios(clientNumber, pacienteUbicacion, diagnosticoIA, medicamentosRequeridos) {
-    try {
-        const farmaciaOptima = await db.collection('farmacias').findOne({
-            ubicacion: {
-                $near: {
-                    $geometry: { type: "Point", coordinates: [pacienteUbicacion.longitud, pacienteUbicacion.latitud] },
-                    $maxDistance: 10000
-                }
-            },
-            stock: { $all: medicamentosRequeridos }
-        });
-
-        if (!farmaciaOptima) return;
-
-        const googleMapsUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${farmaciaOptima.ubicacion.coordinates[1]},${farmaciaOptima.ubicacion.coordinates[0]}&destinations=${pacienteUbicacion.latitud},${pacienteUbicacion.longitud}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
-        const mapsResponse = await axios.get(googleMapsUrl);
-        const datosRuta = mapsResponse.data.rows[0].elements[0];
-        
-        const tiempoEstimado = datosRuta.duration?.text || "15 mins";
-        const distanciaTotal = datosRuta.distance?.text || "3.5 km";
-        const ordenId = "MED-" + Math.floor(100000 + Math.random() * 900000);
-
-        await db.collection('ordenes_delivery').insertOne({
-            ordenId, telefonoPaciente: clientNumber, farmaciaOrigen: farmaciaOptima.nombre,
-            medicamentos: medicamentosRequeridos, estado: "Despachado", tiempoEntrega: tiempoEstimado, created_at: new Date()
-        });
-
-        const textoParaPaciente = `*🏛️ MED-BOLIVIA ORÁCULO INTELIGENTE*\n\n🔬 *Diagnóstico preliminar:* ${diagnosticoIA}\n💊 *Medicamentos:* ${medicamentosRequeridos.join(', ')}\n📍 *Logística:* Asignado a sucursal *${farmaciaOptima.nombre}*.\n🛵 Moto en ruta. Distancia: *${distanciaTotal}*. Llegada estimada: *${tiempoEstimado}*.\n\nCódigo de orden: *${ordenId}*.`;
-        
-        await axios.post(`https://graph.facebook.com/v17.0/${process.env.ID_NUMERO_TELEFONO}/messages`, {
-            messaging_product: "whatsapp", to: clientNumber, type: "text", text: { body: textoParaPaciente }
-        }, { headers: { 'Authorization': `Bearer ${process.env.TOKEN_WHATSAPP}`, 'Content-Type': 'application/json' } });
-
-    } catch (error) {
-        console.error("FALLO EN EL NÚCLEO LOGÍSTICO:", error);
-    }
-}
-
-// Receptor de mensajes en vivo
+// 🧠 EL MOTOR CUÁNTICO (Recepcion de mensajes y Triage Psicológico)
 app.post('/webhook', async (req, res) => {
-    res.status(200).send('EVENT_RECEIVED');
+  try {
     const body = req.body;
+    if (body.object) {
+      if (body.entry && body.entry[0].changes && body.entry[0].changes[0].value.messages && body.entry[0].changes[0].value.messages[0]) {
+        
+        const phoneNumberId = body.entry[0].changes[0].value.metadata.phone_number_id;
+        const from = body.entry[0].changes[0].value.messages[0].from;
+        const msgBody = body.entry[0].changes[0].value.messages[0].text.body;
 
-    if (body.object === 'whatsapp_business_account' && body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]) {
-        const messageData = body.entry[0].changes[0].value.messages[0];
-        const clientNumber = messageData.from;
-        const incomingText = messageData.text?.body;
+        console.log(`⚡ Señal detectada del número: ${from}. Mensaje: ${msgBody}`);
 
-        if (!incomingText) return;
+        // 🧬 ARQUITECTURA DE PENSAMIENTO (Prompt Nivel Dios)
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const promptMaestro = `
+          Eres la Inteligencia Artificial "MED-BOLIVIA CORE", el asistente médico de élite de Bolivia.
+          Tu personalidad combina la empatía de un gran médico con el pragmatismo táctico. 
+          
+          Reglas de Evolución:
+          1. TRIAGE RÁPIDO: Detecta urgencias. Si es grave, sugiere hospital de inmediato.
+          2. PERSUASIÓN SUTIL: Si es consulta regular, responde con autoridad científica y menciona sutilmente que los mejores especialistas están en nuestra red, invitando a agendar cita.
+          3. EFICIENCIA: Responde en menos de 50 palabras. Ve al grano, sin rodeos.
+          4. SEGURIDAD: Nunca des un diagnóstico definitivo, sugiere posibles causas y orienta.
+          
+          Mensaje del usuario: "${msgBody}"
+          Genera tu respuesta táctica ahora:
+        `;
 
-        try {
-            const userHistory = await db.collection('historiales_clinicos').findOne({ phone: clientNumber });
-            const contextoPrevio = userHistory ? userHistory.logs.slice(-5) : [];
+        const result = await model.generateContent(promptMaestro);
+        const respuestaIA = result.response.text();
 
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: `El usuario dice: "${incomingText}". Historial previo: ${JSON.stringify(contextoPrevio)}. Responde de manera profesional y médica.`,
-            });
-
-            const textOutput = response.text;
-
-            // Guardar con la zona asignada (simulamos Obrajes para la prueba)
-            await db.collection('historiales_clinicos').updateOne(
-                { phone: clientNumber },
-                { 
-                    $set: { zona: "Obrajes" },
-                    $push: { logs: { fecha: new Date(), input: incomingText, output: textOutput } } 
-                },
-                { upsert: true }
-            );
-
-            const ubicacionSimulada = { latitud: -16.5244, longitud: -68.1189 };
-            
-            // Ejecutar la logística de entrega física
-            await procesarLogisticaDios(clientNumber, ubicacionSimulada, textOutput, ["Paracetamol"]);
-            
-            // Ejecutar el enjambre de análisis de brotes y cobro de comisiones
-            await ejecutarMatrizSupremaEnjambre(clientNumber, "Obrajes", incomingText, 80);
-
-        } catch (error) {
-            console.error("ERROR INTERNO:", error);
-        }
+        // 🚀 EL DISPARO DE RESPUESTA A WHATSAPP
+        await axios({
+          method: 'POST',
+          url: `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`,
+          headers: { Authorization: `Bearer ${WHATSAPP_TOKEN}` },
+          data: {
+            messaging_product: 'whatsapp',
+            to: from,
+            text: { body: respuestaIA }
+          }
+        });
+        console.log('✅ Jaque Mate. Respuesta enviada con éxito.');
+      }
+      res.sendStatus(200);
+    } else {
+      res.sendStatus(404);
     }
+  } catch (error) {
+    console.error('❌ Falla en la Matriz:', error.message);
+    res.sendStatus(500);
+  }
 });
 
+// Inicialización del Núcleo
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`=== MONOPOLIO TOTAL CONFIGURADO EN PUERTO ${PORT} ===`));
+app.listen(PORT, () => console.log(`🔥 SISTEMA OMNI-CORE RESPIRANDO EN EL PUERTO ${PORT}`));
+module.exports = app;
