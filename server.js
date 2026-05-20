@@ -1,106 +1,175 @@
+// ==========================================================================
+// MED-BOLIVIA CORE // PASO 7: INTELIGENCIA DE ENJAMBRE Y CONTABILIDAD DE TASAS
+// ==========================================================================
+
 const express = require('express');
-const cors = require('cors');
-const { MongoClient, ObjectId } = require('mongodb'); 
-const PDFDocument = require('pdfkit'); 
-const fs = require('fs'); 
-const bcrypt = require('bcryptjs'); 
+const bodyParser = require('body-parser');
+const { GoogleGenAI } = require('@google/genai');
+const { MongoClient } = require('mongodb');
+const axios = require('axios');
 const crypto = require('crypto');
 
 const app = express();
-app.use(express.json());
-app.use(cors());
+app.use(bodyParser.json());
 
-process.on('uncaughtException', function (err) {
-    console.error("⚠️ [NÚCLEO PROTEGIDO] Error interceptado:", err.message);
-});
+// Variables de entorno inyectadas en la nube de Vercel
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const MONGODB_URI = process.env.MONGODB_URI;
+const VERIFY_TOKEN = 'MED_BOLIVIA_TOKEN'; 
 
-const TOKEN_WHATSAPP = "TU_TOKEN_LARGO_DE_META_AQUI"; 
-const ID_NUMERO_TELEFONO = "1089148367621132"; 
-const GEMINI_API_KEY = "TU_LLAVE_REAL_DE_GOOGLE_AI_STUDIO"; 
+// Inicialización del cerebro de IA
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-const MONGO_URI = "mongodb://adminmed:Joseph1234567@ac-8cysdko-shard-00-00.vs1zt38.mongodb.net:27017,ac-8cysdko-shard-00-01.vs1zt38.mongodb.net:27017,ac-8cysdko-shard-00-02.vs1zt38.mongodb.net:27017/?ssl=true&replicaSet=atlas-xofoj8-shard-0&authSource=admin&appName=Cluster0";
-const mongoClient = new MongoClient(MONGO_URI);
+// Conexión electrónica a la base de datos (MongoDB Atlas)
+let db;
+MongoClient.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(client => {
+        db = client.db('med_bolivia_core');
+        console.log("=== NÚCLEO DE MEMORIA ATLAS: ONLINE ===");
+    })
+    .catch(error => console.error("FALLO CRÍTICO EN ENLACE DE BASE DE DATOS:", error));
 
-const ZONAS_BOLIVIA = [
-    "La Paz - Sopocachi", "La Paz - Miraflores", "La Paz - Zona Sur", "La Paz - El Alto",
-    "Santa Cruz - Equipetrol", "Santa Cruz - Plan 3000", "Cochabamba - Cala Cala"
-];
+// El puente de validación inicial con Meta
+app.get('/webhook', (req, res) => {
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
 
-app.post('/api/ai/analizar-sintomas', async (req, res) => {
-    try {
-        const { sintomas } = req.body;
-        if (!sintomas) return res.status(400).json({ message: "Sin síntomas." });
-
-        if (GEMINI_API_KEY === "TU_LLAVE_REAL_DE_GOOGLE_AI_STUDIO") {
-            let resp = { diagnostico: "Dengue Clásico.", medicamento: "PARACETAMOL 1G", cantidad: "20", indicacion: "1 cada 8 horas." };
-            if(sintomas.toLowerCase().includes("presion")) {
-                resp = { diagnostico: "Hipertensión.", medicamento: "LOSARTAN 50MG", cantidad: "30", indicacion: "1 cada 24 horas." };
-            }
-            return res.status(200).json(resp);
-        }
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-        const payload = { contents: [{ parts: [{ text: `Actúa como médico de MED-BOLIVIA. Genera JSON estricto con: "diagnostico", "medicamento", "cantidad", "indicacion". Síntomas: "${sintomas}"` }] }] };
-
-        const respAI = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (respAI.ok) {
-            const data = await respAI.json();
-            res.status(200).json(JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim()));
-        } else { throw new Error("Fallo API"); }
-    } catch (error) {
-        res.status(200).json({ diagnostico: "Bypass activado.", medicamento: "PARACETAMOL 1G", cantidad: "10", indicacion: "1 cada 8 horas." });
+    if (mode && token && mode === 'subscribe' && token === VERIFY_TOKEN) {
+        res.status(200).send(challenge);
+    } else {
+        res.sendStatus(403);
     }
 });
 
-async function dispararMisilWhatsAppPaciente(nombre, telefono, tokenQR, medicamentos) {
-    if (TOKEN_WHATSAPP === "TU_TOKEN_LARGO_DE_META_AQUI") return;
-    const url = `https://graph.facebook.com/v18.0/${ID_NUMERO_TELEFONO}/messages`;
-    const meds = medicamentos.map(m => `${m.med}`).join(', ');
-    const msg = { "messaging_product": "whatsapp", "to": telefono, "type": "text", "text": { "body": `🏥 *MED-BOLIVIA*\nTu receta está lista.\nQR: ${tokenQR}\nMeds: ${meds}` } };
-    try { await fetch(url, { method: 'POST', headers: { 'Authorization': `Bearer ${TOKEN_WHATSAPP}`, 'Content-Type': 'application/json' }, body: JSON.stringify(msg) }); } catch (e) {}
-}
+// MOTOR DE INTELIGENCIA DE ENJAMBRE Y CONTABILIDAD OMNIPRESENTE
+async function ejecutarMatrizSupremaEnjambre(pacienteId, zonaGeografica, sintomasDetectados, costoReceta) {
+    const tiempoLimite = new Date(Date.now() - 24 * 60 * 60 * 1000); // Ventana de 24 horas
 
-app.post('/api/enviar-receta', async (req, res) => {
     try {
-        const datos = req.body;
-        const hashQR = crypto.createHash('sha256').update(Date.now().toString()).digest('hex').substring(0, 12).toUpperCase();
-        await mongoClient.connect();
-        const db = mongoClient.db("MedBoliviaDB");
-
-        await db.collection("Recetas").insertOne({ 
-            paciente: datos.pacienteNombre || "Sin Nombre", celular: datos.pacienteTelefono || "00", medicamentos: datos.receta || [], fecha: new Date(), estado: "Enviada a Farmacia", comisionGeneradaBs: 3.50, zona: ZONAS_BOLIVIA[0], tokenQR: hashQR, fiscalizadoSIN: false
+        // A. Contar cuántos casos similares hay en la misma zona en las últimas 24 horas
+        const volumenBrote = await db.collection('historiales_clinicos').countDocuments({
+            "logs.fecha": { $gte: tiempoLimite },
+            "logs.input": { $regex: sintomasDetectados, $options: 'i' },
+            zona: zonaGeografica
         });
 
-        if (datos.laboratorios && datos.laboratorios.length > 0) {
-            await db.collection("OrdenesLaboratorio").insertOne({
-                paciente: datos.pacienteNombre, examenes: datos.laboratorios, fecha: new Date(), estado: "Muestra Pendiente", comisionGeneradaBs: 25.00, tokenQR_Lab: "LAB-" + hashQR
+        // Si hay más de 100 casos, se dispara una alerta de brote biológico
+        if (volumenBrote >= 100) {
+            await db.collection('alertas_gubernamentales').insertOne({
+                broteId: "BROTE-" + crypto.randomBytes(3).toString('hex').toUpperCase(),
+                patogenoEstimado: sintomasDetectados,
+                zonaAfectada: zonaGeografica,
+                casosActivos: volumenBrote,
+                fechaAlerta: new Date()
             });
+            console.log(`⚠️ BROTE DETECTADO EN ${zonaGeografica}: ${volumenBrote} CASOS.`);
         }
-        await dispararMisilWhatsAppPaciente(datos.pacienteNombre, datos.pacienteTelefono, hashQR, datos.receta || []);
-        res.status(200).json({ status: "success", tokenQR: hashQR }); 
-    } catch (e) { res.status(500).json({ status: "error" }); }
-});
 
-app.post('/api/paciente/refill', async (req, res) => {
+        // B. REGISTRO CONTABLE AUTOMÁTICO (Tu billetera digital)
+        const transaccionId = "TXN-" + Math.floor(10000000 + Math.random() * 90000000);
+        await db.collection('banco_central_med_latam').insertOne({
+            transaccionId,
+            pacienteId,
+            fecha: new Date(),
+            gananciasBOB: {
+                comisionFarmacia: costoReceta * 0.12, // Tu 12% por la venta del remedio
+                canonLaboratorio: 3.50,               // Cobro al laboratorio por recomendar su marca
+                margenDelivery: 2.00                  // Tu ganancia limpia por el viaje de la moto
+            }
+        });
+        console.log(`[BUNKER FINANCIERO]: Transacción ${transaccionId} guardada con éxito.`);
+
+    } catch (error) {
+        console.error("ERROR EN EL ENJAMBRE CONTABLE:", error);
+    }
+}
+
+// MOTOR LOGÍSTICO (Cercanía de farmacias y rutas)
+async function procesarLogisticaDios(clientNumber, pacienteUbicacion, diagnosticoIA, medicamentosRequeridos) {
     try {
-        await mongoClient.connect();
-        const db = mongoClient.db("MedBoliviaDB");
-        const receta = await db.collection("Recetas").findOne({ _id: new ObjectId(req.body.recetaId) });
-        const hash = crypto.createHash('sha256').update(Date.now().toString()).digest('hex').substring(0, 12).toUpperCase();
-        await db.collection("Recetas").insertOne({ paciente: receta.paciente, celular: receta.celular, medicamentos: receta.medicamentos, fecha: new Date(), estado: "Refill - Esperando Pago QR", comisionGeneradaBs: 5.00, tokenQR: hash, fiscalizadoSIN: false, splitLedger: { comisionCEO: 6, logisticaMoto: 12, saldoFarmacia: 102 } });
-        res.status(200).json({ status: "success", nuevoToken: hash });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+        const farmaciaOptima = await db.collection('farmacias').findOne({
+            ubicacion: {
+                $near: {
+                    $geometry: { type: "Point", coordinates: [pacienteUbicacion.longitud, pacienteUbicacion.latitud] },
+                    $maxDistance: 10000
+                }
+            },
+            stock: { $all: medicamentosRequeridos }
+        });
+
+        if (!farmaciaOptima) return;
+
+        const googleMapsUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${farmaciaOptima.ubicacion.coordinates[1]},${farmaciaOptima.ubicacion.coordinates[0]}&destinations=${pacienteUbicacion.latitud},${pacienteUbicacion.longitud}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+        const mapsResponse = await axios.get(googleMapsUrl);
+        const datosRuta = mapsResponse.data.rows[0].elements[0];
+        
+        const tiempoEstimado = datosRuta.duration?.text || "15 mins";
+        const distanciaTotal = datosRuta.distance?.text || "3.5 km";
+        const ordenId = "MED-" + Math.floor(100000 + Math.random() * 900000);
+
+        await db.collection('ordenes_delivery').insertOne({
+            ordenId, telefonoPaciente: clientNumber, farmaciaOrigen: farmaciaOptima.nombre,
+            medicamentos: medicamentosRequeridos, estado: "Despachado", tiempoEntrega: tiempoEstimado, created_at: new Date()
+        });
+
+        const textoParaPaciente = `*🏛️ MED-BOLIVIA ORÁCULO INTELIGENTE*\n\n🔬 *Diagnóstico preliminar:* ${diagnosticoIA}\n💊 *Medicamentos:* ${medicamentosRequeridos.join(', ')}\n📍 *Logística:* Asignado a sucursal *${farmaciaOptima.nombre}*.\n🛵 Moto en ruta. Distancia: *${distanciaTotal}*. Llegada estimada: *${tiempoEstimado}*.\n\nCódigo de orden: *${ordenId}*.`;
+        
+        await axios.post(`https://graph.facebook.com/v17.0/${process.env.ID_NUMERO_TELEFONO}/messages`, {
+            messaging_product: "whatsapp", to: clientNumber, type: "text", text: { body: textoParaPaciente }
+        }, { headers: { 'Authorization': `Bearer ${process.env.TOKEN_WHATSAPP}`, 'Content-Type': 'application/json' } });
+
+    } catch (error) {
+        console.error("FALLO EN EL NÚCLEO LOGÍSTICO:", error);
+    }
+}
+
+// Receptor de mensajes en vivo
+app.post('/webhook', async (req, res) => {
+    res.status(200).send('EVENT_RECEIVED');
+    const body = req.body;
+
+    if (body.object === 'whatsapp_business_account' && body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]) {
+        const messageData = body.entry[0].changes[0].value.messages[0];
+        const clientNumber = messageData.from;
+        const incomingText = messageData.text?.body;
+
+        if (!incomingText) return;
+
+        try {
+            const userHistory = await db.collection('historiales_clinicos').findOne({ phone: clientNumber });
+            const contextoPrevio = userHistory ? userHistory.logs.slice(-5) : [];
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: `El usuario dice: "${incomingText}". Historial previo: ${JSON.stringify(contextoPrevio)}. Responde de manera profesional y médica.`,
+            });
+
+            const textOutput = response.text;
+
+            // Guardar con la zona asignada (simulamos Obrajes para la prueba)
+            await db.collection('historiales_clinicos').updateOne(
+                { phone: clientNumber },
+                { 
+                    $set: { zona: "Obrajes" },
+                    $push: { logs: { fecha: new Date(), input: incomingText, output: textOutput } } 
+                },
+                { upsert: true }
+            );
+
+            const ubicacionSimulada = { latitud: -16.5244, longitud: -68.1189 };
+            
+            // Ejecutar la logística de entrega física
+            await procesarLogisticaDios(clientNumber, ubicacionSimulada, textOutput, ["Paracetamol"]);
+            
+            // Ejecutar el enjambre de análisis de brotes y cobro de comisiones
+            await ejecutarMatrizSupremaEnjambre(clientNumber, "Obrajes", incomingText, 80);
+
+        } catch (error) {
+            console.error("ERROR INTERNO:", error);
+        }
+    }
 });
 
-// Rutas de Mantenimiento Compactadas
-app.get('/api/farmacia/ordenes', async (req, res) => { try { await mongoClient.connect(); res.status(200).json(await mongoClient.db("MedBoliviaDB").collection("Recetas").find({ estado: { $ne: "Entregado" } }).sort({ fecha: -1 }).toArray()); } catch (e) { res.status(500).json({}); }});
-app.post('/api/farmacia/actualizar', async (req, res) => { try { await mongoClient.connect(); await mongoClient.db("MedBoliviaDB").collection("Recetas").updateOne({ _id: new ObjectId(req.body.id) }, { $set: { estado: req.body.nuevoEstado } }); res.status(200).json({ status: "success" }); } catch (e) { res.status(500).json({}); }});
-app.get('/api/laboratorio/ordenes', async (req, res) => { try { await mongoClient.connect(); res.status(200).json(await mongoClient.db("MedBoliviaDB").collection("OrdenesLaboratorio").find({ estado: { $ne: "Resultados Entregados" } }).sort({ fecha: -1 }).toArray()); } catch (e) { res.status(500).json({}); }});
-app.post('/api/laboratorio/actualizar', async (req, res) => { try { await mongoClient.connect(); await mongoClient.db("MedBoliviaDB").collection("OrdenesLaboratorio").updateOne({ _id: new ObjectId(req.body.id) }, { $set: { estado: req.body.nuevoEstado } }); res.status(200).json({ status: "success" }); } catch (e) { res.status(500).json({}); }});
-app.get('/api/paciente/portal', async (req, res) => { try { await mongoClient.connect(); res.status(200).json(await mongoClient.db("MedBoliviaDB").collection("Recetas").find({ $or: [ { celular: req.query.identificador }, { tokenQR: req.query.identificador } ] }).sort({ fecha: -1 }).toArray()); } catch (e) { res.status(500).json({}); }});
-app.post('/api/billetera/confirmar-pago', async (req, res) => { try { await mongoClient.connect(); await mongoClient.db("MedBoliviaDB").collection("Recetas").updateOne({ _id: new ObjectId(req.body.recetaId) }, { $set: { estado: "Pagada", liquidadaDigital: true } }); res.status(200).json({ status: "success" }); } catch (e) { res.status(500).json({}); }});
-app.get('/api/ceo/metricas-vivas', async (req, res) => { try { await mongoClient.connect(); res.status(200).json({ comisionesFarmacia: 100, comisionesLaboratorio: 50, pujasLaboratorios: 100000, saasMedicos: 560, cajaTotal: 100710, conteoMedicos: 2, tablaSubastas: [], analyticsGeografico: {}, fiscalInvoicing: { fiscalizadas: 0, pendientes: 1 } }); } catch (e) { res.status(500).json({}); }});
-
-// PUERTO DINÁMICO PARA VERCEL
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 SOL IMPERIAL V10 listo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`=== MONOPOLIO TOTAL CONFIGURADO EN PUERTO ${PORT} ===`));
